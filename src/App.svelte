@@ -1,5 +1,4 @@
 <script lang="ts">
-  console.log(import.meta.env.DEV.VITE_WEATHERAPI_KEY)
   async function getWeatherData() {
     const options = {
       method: "GET",
@@ -47,10 +46,9 @@
       {#if weatherData === null}
         <span>Error loading weather data...</span>
       {:else}
-        <h2>Location: {weatherData.country}, {weatherData.name}</h2>
+        <h3>Location: {weatherData.country}, {weatherData.name}</h3>
         <h3>Current weather condition: {weatherData.textCondition}</h3>
-        <span>Temperature: </span>
-        <span>{JSON.stringify(weatherData)}</span>
+        <span>Temperature: {weatherData.temp_c}ºC, (Feels like: {weatherData.feelslike_c}ºC)</span>
       {/if}
     {/await}
   </div>
