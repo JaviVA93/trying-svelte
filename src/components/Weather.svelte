@@ -1,14 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
 
-    let weatherData: Promise<{
-        country: any;
-        name: any;
-        textCondition: any;
-        temp_c: any;
-        feelslike_c: any;
-    }> = null;
-
     async function getWeatherData(q: null | string) {
         if (!q) q = "auto:ip";
         q = encodeURI(q);
@@ -21,6 +13,10 @@
         };
 
         try {
+            // Give some delay
+            await new Promise((resolve) => {
+                setTimeout(() => resolve(true), 1000);
+            });
             const reqWeatherData = await fetch(
                 "https://weatherapi-com.p.rapidapi.com/current.json?q=" + q,
                 options
@@ -47,45 +43,16 @@
     function handleWeatherSubmit(e) {
         const formData = new FormData(e.target);
         const searchLocation = formData.get("search-location");
-        weatherData = null;
-        setTimeout(() => {
-            weatherData = getWeatherData(searchLocation.toString());
-        }, 1000);
+        weatherData = getWeatherData(searchLocation.toString());
     }
 
-    onMount(() => {
-        setTimeout(() => {
-            weatherData = getWeatherData(null);
-        }, 1000);
-    });
+    let weatherData = getWeatherData(null);
 </script>
 
 <main>
     <h1>Weather Component :)</h1>
     <div class="wheatherDataWrapper">
-        {#if weatherData}
-            {#await weatherData}
-                <div class="loadingWeather">
-                    <span>Loading weather data...</span>
-                    <div class="lds-ripple">
-                        <div />
-                        <div />
-                    </div>
-                </div>
-            {:then weatherData}
-                {#if weatherData === null}
-                    <span>Error loading weather data...</span>
-                {:else}
-                    <h3>Location: {weatherData.name}, {weatherData.country}</h3>
-                    <h3>
-                        Current weather condition: {weatherData.textCondition}
-                    </h3>
-                    <span
-                        >Temperature: {weatherData.temp_c}ºC, (Feels like: {weatherData.feelslike_c}ºC)</span
-                    >
-                {/if}
-            {/await}
-        {:else}
+        {#await weatherData}
             <div class="loadingWeather">
                 <span>Loading weather data...</span>
                 <div class="lds-ripple">
@@ -93,7 +60,19 @@
                     <div />
                 </div>
             </div>
-        {/if}
+        {:then weatherData}
+            {#if weatherData === null}
+                <span>Error loading weather data...</span>
+            {:else}
+                <h3>Location: {weatherData.name}, {weatherData.country}</h3>
+                <h3>
+                    Current weather condition: {weatherData.textCondition}
+                </h3>
+                <span
+                    >Temperature: {weatherData.temp_c}ºC, (Feels like: {weatherData.feelslike_c}ºC)</span
+                >
+            {/if}
+        {/await}
     </div>
     <div class="weatherSearchWrapper">
         <form on:submit|preventDefault={handleWeatherSubmit}>
